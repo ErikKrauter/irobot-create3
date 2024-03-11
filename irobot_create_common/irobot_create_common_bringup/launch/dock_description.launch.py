@@ -23,6 +23,9 @@ ARGUMENTS.append(DeclareLaunchArgument('visualize_rays', default_value='true',
                                        choices=['true', 'false'],
                                        description='Enable/disable ray visualization'))
 
+ARGUMENTS.append(DeclareLaunchArgument('namespace', default_value='',
+                                       description='Robot namespace'))
+
 
 def generate_launch_description():
     # Directory
@@ -38,6 +41,8 @@ def generate_launch_description():
 
     gazebo_simulator = LaunchConfiguration('gazebo')
 
+    namespace = LaunchConfiguration('namespace')
+
     state_publisher = Node(
         package='robot_state_publisher',
         executable='robot_state_publisher',
@@ -49,10 +54,13 @@ def generate_launch_description():
              Command(
                 ['xacro', ' ', dock_xacro_file, ' ',
                  'gazebo:=', gazebo_simulator, ' ',
+                 'namespace:=', namespace, ' ',
                  'visualize_rays:=', visualize_rays])},
         ],
         remappings=[
             ('robot_description', 'standard_dock_description'),
+            ('/tf', 'tf'),
+            ('/tf_static', 'tf_static')
         ],
     )
 
@@ -65,6 +73,10 @@ def generate_launch_description():
                    # the order is yaw, pitch, roll
                    yaw, '0', '0',
                    'odom', 'std_dock_link'],
+        remappings=[
+            ('/tf', 'tf'),
+            ('/tf_static', 'tf_static')
+        ],
         output='screen',
     )
 

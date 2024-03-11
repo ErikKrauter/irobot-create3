@@ -134,9 +134,9 @@ private:
   std::atomic<bool> allow_speed_param_change_ {false};
   std::atomic<SafetyOverrideMode> safety_override_mode_ {SafetyOverrideMode::NONE};
   const double GYRO_MAX_ROTATE_SPEED_RAD_S {1.9};
-  const double SAFETY_ON_MAX_SPEED {0.306};
+  const double SAFETY_ON_MAX_SPEED {0.306};  //0.306
   const double SAFETY_OFF_MAX_SPEED {0.46};
-  double max_speed_ {SAFETY_ON_MAX_SPEED};
+  double max_speed_ {10.0};  //SAFETY_ON_MAX_SPEED
   const double wheel_base_ {0.233};
   double backup_buffer_ {0.0};
   std::mutex robot_pose_mutex_;

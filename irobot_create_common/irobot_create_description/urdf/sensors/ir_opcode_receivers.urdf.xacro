@@ -4,6 +4,7 @@
 
   <xacro:macro name="ir_opcode_receivers" params="name:=ir_omni
                                                   gazebo
+                                                  namespace
                                                   robot_model_name
                                                   dock_model_name
                                                   emitter_link_name
@@ -36,9 +37,9 @@
     <xacro:if value="${visualize}">
       <!-- Sensor 0 visualization -->
       <gazebo reference="${receiver_link_name}">
-        <xacro:ray_sensor sensor_name="sensor_0" gazebo="${gazebo}" 
-                      update_rate="1" visualize="${visualize}" 
-                      h_samples="${samples}" h_res="1.0" h_min_angle="-${sensor_0_fov/2}" h_max_angle="${sensor_0_fov/2}" 
+        <xacro:ray_sensor sensor_name="sensor_0" gazebo="${gazebo}"
+                      update_rate="1" visualize="${visualize}"
+                      h_samples="${samples}" h_res="1.0" h_min_angle="-${sensor_0_fov/2}" h_max_angle="${sensor_0_fov/2}"
                       r_min="${min_range}" r_max="${sensor_0_range}" r_res="0.01">
                       <plugin name="dummy" filename="dummyfile"></plugin>
         </xacro:ray_sensor>
@@ -46,9 +47,9 @@
 
       <!-- Sensor 1 visualization -->
       <gazebo reference="${receiver_link_name}">
-        <xacro:ray_sensor sensor_name="sensor_1" gazebo="${gazebo}" 
-                      update_rate="1" visualize="${visualize}" 
-                      h_samples="${samples}" h_res="1.0" h_min_angle="-${sensor_1_fov/2}" h_max_angle="${sensor_1_fov/2}" 
+        <xacro:ray_sensor sensor_name="sensor_1" gazebo="${gazebo}"
+                      update_rate="1" visualize="${visualize}"
+                      h_samples="${samples}" h_res="1.0" h_min_angle="-${sensor_1_fov/2}" h_max_angle="${sensor_1_fov/2}"
                       r_min="${min_range}" r_max="${sensor_1_range}" r_res="0.01">
                       <plugin name="dummy" filename="dummyfile"></plugin>
         </xacro:ray_sensor>
@@ -59,7 +60,7 @@
       <gazebo>
         <plugin name="${name}_plugin" filename="libgazebo_ros_create_ir_opcode.so">
           <ros>
-            <namespace>/</namespace>
+            <namespace>${namespace}</namespace>
             <remapping>~/out:=ir_opcode</remapping>
           </ros>
           <update_rate>${update_rate}</update_rate>

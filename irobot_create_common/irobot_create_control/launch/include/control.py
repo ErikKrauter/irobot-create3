@@ -5,14 +5,30 @@
 
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import RegisterEventHandler
+from launch.actions import DeclareLaunchArgument, RegisterEventHandler, ExecuteProcess
+from launch.conditions import LaunchConfigurationNotEquals
 from launch.event_handlers import OnProcessExit
-from launch.substitutions import PathJoinSubstitution
+from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch_ros.actions import Node
+import os
+
+ARGUMENTS = [
+    DeclareLaunchArgument('namespace', default_value='', description='Robot namespace')
+]
 
 
 def generate_launch_description():
+    print('ENTERED CONTROL.PY')
     pkg_create3_control = get_package_share_directory('irobot_create_control')
+
+    namespace = LaunchConfiguration('namespace')
+
+    print(f'name space in the control py: {namespace}')
+
+    if LaunchConfigurationNotEquals('namespace', ''):
+        controller_manager_path = [namespace, '/controller_manager']
+    else:
+        controller_manager_path = 'controller_manager'
 
     control_params_file = PathJoinSubstitution(
         [pkg_create3_control, 'config', 'control.yaml'])
@@ -20,15 +36,17 @@ def generate_launch_description():
     diffdrive_controller_node = Node(
         package='controller_manager',
         executable='spawner',
+        namespace=namespace,  # Namespace is not pushed when used in EventHandler
         parameters=[control_params_file],
-        arguments=['diffdrive_controller', '-c', '/controller_manager'],
+        arguments=['diffdrive_controller', '-c', controller_manager_path],
         output='screen',
     )
 
     joint_state_broadcaster_spawner = Node(
         package='controller_manager',
         executable='spawner',
-        arguments=['joint_state_broadcaster', '-c', '/controller_manager'],
+        # namespace=namespace,
+        arguments=['joint_state_broadcaster', '-c', controller_manager_path],
         output='screen',
     )
 
@@ -40,9 +58,45 @@ def generate_launch_description():
         )
     )
 
-    ld = LaunchDescription()
+    # Static transform from <namespace>/odom to odom
+    # See https://github.com/ros-controls/ros2_controllers/pull/533
+    tf_namespaced_odom_publisher = Node(
+        package='tf2_ros',
+        executable='static_transform_publisher',
+        name='tf_namespaced_odom_publisher',
+        arguments=['0', '0', '0',
+                   '0', '0', '0',
+                   'odom', [namespace, '/odom']],
+        remappings=[
+            ('/tf', 'tf'),
+            ('/tf_static', 'tf_static'),
+            # ('/odom', 'odom')
+        ],
+        output='screen',
+        condition=LaunchConfigurationNotEquals('namespace', '')
+    )
+
+    # Static transform from <namespace>/base_link to base_link
+    tf_namespaced_base_link_publisher = Node(
+        package='tf2_ros',
+        executable='static_transform_publisher',
+        name='tf_namespaced_base_link_publisher',
+        arguments=['0', '0', '0',
+                   '0', '0', '0',
+                   [namespace, '/base_link'], 'base_link'],
+        remappings=[
+            ('/tf', 'tf'),
+            ('/tf_static', 'tf_static')
+        ],
+        output='screen',
+        condition=LaunchConfigurationNotEquals('namespace', '')
+    )
+
+    ld = LaunchDescription(ARGUMENTS)
 
     ld.add_action(joint_state_broadcaster_spawner)
     ld.add_action(diffdrive_controller_callback)
+    ld.add_action(tf_namespaced_odom_publisher)
+    ld.add_action(tf_namespaced_base_link_publisher)
 
     return ld

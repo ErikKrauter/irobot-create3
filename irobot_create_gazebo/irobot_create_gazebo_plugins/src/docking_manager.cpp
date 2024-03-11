@@ -3,6 +3,7 @@
 
 #include <irobot_create_gazebo_plugins/docking_manager.hpp>
 #include <string>
+#include <iostream>
 
 namespace irobot_create_gazebo_plugins
 {
@@ -13,6 +14,9 @@ DockingManager::DockingManager(
 : world_{world}, robot_model_name_{robot_name}, robot_receiver_link_name_{receiver_link_name},
   dock_model_name_{dock_name}, dock_emitter_link_name_{emitter_link_name}
 {
+  std::cout << "The robot model name is: " << robot_model_name_ << std::endl;
+  std::cout << "The docking station name is: " << dock_model_name_ << std::endl;
+
 }
 
 void DockingManager::initLinks(

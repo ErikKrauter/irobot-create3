@@ -36,6 +36,10 @@ void GazeboRosDockingStatus::Load(gazebo::physics::ModelPtr model, sdf::ElementP
   utils::initialize(dock_model_name, sdf, "dock_model_name", "");
   utils::initialize(emitter_link_name, sdf, "emitter_link_name", "");
 
+  //std::string namespaced_robot_model_name = ros_node_->get_namespace() + "/" + std::string(robot_model_name);
+  //std::string namespaced_dock_model_name = ros_node_->get_namespace() + "/" + std::string(dock_model_name);
+
+
   // Used to determine if robot is docked or not
   dock_manager_ = std::make_shared<DockingManager>(
     world_, robot_model_name, receiver_link_name,
@@ -46,7 +50,7 @@ void GazeboRosDockingStatus::Load(gazebo::physics::ModelPtr model, sdf::ElementP
     "~/out", rclcpp::SensorDataQoS().reliable());
 
   sub_ = ros_node_->create_subscription<irobot_create_msgs::msg::IrOpcode>(
-    "/ir_opcode", rclcpp::SensorDataQoS(),
+    "ir_opcode", rclcpp::SensorDataQoS(),
     std::bind(&GazeboRosDockingStatus::IrOpcodeCb, this, std::placeholders::_1));
 
   // Set message frame_id
