@@ -8,7 +8,7 @@ import os
 
 from ament_index_python.packages import get_package_share_directory
 
-from irobot_create_common_bringup.namespace import GetNamespacedName
+from irobot_create_common_bringup.namespace import GetNamespacedName, EnsureString
 
 from launch import LaunchContext, LaunchDescription, SomeSubstitutionsType, Substitution
 from launch.actions import DeclareLaunchArgument, GroupAction
@@ -63,6 +63,8 @@ def generate_launch_description():
     # Paths
     create3_nodes_launch_file = PathJoinSubstitution(
         [pkg_create3_common_bringup, 'launch', 'create3_nodes.launch.py'])
+    create3_coverage_node_launch_file = PathJoinSubstitution(
+        [pkg_create3_common_bringup, 'launch', 'create3_coverage_node.launch.py'])
     dock_description_launch_file = PathJoinSubstitution(
         [pkg_create3_common_bringup, 'launch', 'dock_description.launch.py'])
     robot_description_launch_file = PathJoinSubstitution(
@@ -86,11 +88,23 @@ def generate_launch_description():
 
     push_namespace = PushRosNamespace(namespace)
 
+    #namespace_str = EnsureString(namespace)
+    #x_dock_str = EnsureString(x_dock)
+    #y_str = EnsureString(y)
+    #z_str = EnsureString(z)
+    #yaw_dock_str = EnsureString(yaw_dock)
+
+    #print(f'in create3_spawn launch launch arguments: namespace: {namespace_str}, x: {x_dock_str}, y: {y_str}, z: {z_str}, yaw: {yaw_dock_str}')
+
+
     dock_description = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([dock_description_launch_file]),
         condition=IfCondition(spawn_dock),
         # The robot starts docked
         launch_arguments={'x': x_dock, 'y': y, 'z': z, 'yaw': yaw_dock}.items(),)
+        #launch_arguments=[
+            #('namespace', namespace), ('x', x_dock), ('y', y), ('z', z), ('yaw', yaw_dock)
+        #])
 
     spawn_dock = Node(
         package='gazebo_ros',
@@ -110,7 +124,10 @@ def generate_launch_description():
 
     # Create 3 robot model and description
     robot_description = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource([robot_description_launch_file])
+        PythonLaunchDescriptionSource([robot_description_launch_file]),
+        #launch_arguments=[
+            #('namespace', namespace)
+        #]
     )
     spawn_robot = Node(
         package='gazebo_ros',
@@ -124,13 +141,21 @@ def generate_launch_description():
                    '-y', y,
                    '-z', z,
                    '-Y', yaw],
-        output='screen',
+        output='screen'
     )
 
 
     # Create 3 nodes
     create3_nodes = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([create3_nodes_launch_file]),
+        launch_arguments=[
+            ('namespace', namespace)
+        ]
+    )
+
+    # Create 3 coverage
+    create3_coverage_node= IncludeLaunchDescription(
+        PythonLaunchDescriptionSource([create3_coverage_node_launch_file]),
         launch_arguments=[
             ('namespace', namespace)
         ]
@@ -153,6 +178,7 @@ def generate_launch_description():
     ld.add_action(dock_description)
     # Include Create 3 nodes
     ld.add_action(create3_nodes)
+    #ld.add_action(create3_coverage_node)
     # Rviz
     ld.add_action(rviz2)
     return ld

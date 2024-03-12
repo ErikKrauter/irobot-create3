@@ -23,7 +23,7 @@ ARGUMENTS = [
     DeclareLaunchArgument('use_gazebo_gui', default_value='true',
                           choices=['true', 'false'],
                           description='Set "false" to run gazebo headless.'),
-    DeclareLaunchArgument('world_path', default_value='',
+    DeclareLaunchArgument('world_path', default_value='/usr/share/gazebo-11/worlds/warehouse.world',
                           description='Set world path, by default is empty.world'),
 ]
 
@@ -40,7 +40,7 @@ def generate_launch_description():
     # Set ignition resource path
     gz_resource_path = SetEnvironmentVariable(name='GAZEBO_MODEL_PATH', value=[
                                                 EnvironmentVariable('GAZEBO_MODEL_PATH',
-                                                                    default_value=''),
+                                                                    default_value=''),  # /home/erikk/Desktop/my_gazebo_world'
                                                 '/usr/share/gazebo-11/models/:',
                                                 str(Path(pkg_irobot_create_description).
                                                     parent.resolve())])

@@ -50,6 +50,15 @@ def generate_launch_description():
         launch_arguments=[('namespace', LaunchConfiguration('namespace'))]
     )
 
+    # Coverage Control
+    create3_coverage_node = Node(
+        package='create3_coverage',
+        name='create3_coverage',
+        executable='create3_coverage',
+        parameters=[{'use_sim_time': True}],
+        output='screen',
+    )
+
     # Publish hazards vector
     hazards_vector_node = Node(
         package='irobot_create_nodes',
@@ -142,6 +151,7 @@ def generate_launch_description():
     ld.add_action(hazards_vector_node)
     ld.add_action(ir_intensity_vector_node)
     ld.add_action(motion_control_node)
+    ld.add_action(create3_coverage_node)
     ld.add_action(wheel_status_node)
     ld.add_action(mock_topics_node)
     ld.add_action(robot_state_node)

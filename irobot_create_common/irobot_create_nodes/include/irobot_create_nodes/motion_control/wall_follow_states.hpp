@@ -65,7 +65,7 @@ private:
   const double spiral_trans_vel_ {0.15};
   const double spiral_start_rot_vel_ {M_PI / 4.0};
   const double converged_angle_threshold_ {M_PI / 60.0};
-  unsigned int spiral_rot_divisor_ {1};
+  unsigned int spiral_rot_divisor_ {10};
   bool check_orientation_converge_ {false};
 };
 /// \brief Servo off of side IR sensor to maintain desired value

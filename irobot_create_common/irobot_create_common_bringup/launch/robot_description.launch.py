@@ -9,6 +9,7 @@ from launch.actions import DeclareLaunchArgument
 from launch.substitutions import Command, PathJoinSubstitution
 from launch.substitutions.launch_configuration import LaunchConfiguration
 from launch_ros.actions import Node
+from irobot_create_common_bringup.namespace import GetNamespacedName
 
 ARGUMENTS = [
     DeclareLaunchArgument('gazebo', default_value='classic',
@@ -29,7 +30,8 @@ def generate_launch_description():
     visualize_rays = LaunchConfiguration('visualize_rays')
     namespace = LaunchConfiguration('namespace')
 
-    print(f'robot description launch namespace: {namespace}')
+    robot_name = GetNamespacedName(namespace, 'create3')
+    dock_name = GetNamespacedName(namespace, 'standard_dock')
 
     robot_state_publisher = Node(
         package='robot_state_publisher',
@@ -43,6 +45,8 @@ def generate_launch_description():
                   ['xacro', ' ', xacro_file, ' ',
                    'gazebo:=', gazebo_simulator, ' ',
                    'visualize_rays:=', visualize_rays, ' ',
+                   'robot_model_name:=', robot_name, ' ',
+                   'dock_model_name:=', dock_name, ' ',
                    'namespace:=', namespace])},
         ],
         remappings=[
@@ -57,10 +61,6 @@ def generate_launch_description():
         name='joint_state_publisher',
         output='screen',
         parameters=[{'use_sim_time': True}],
-        remappings=[
-            ('/tf', 'tf'),
-            ('/tf_static', 'tf_static')
-        ]
     )
 
     # Define LaunchDescription variable

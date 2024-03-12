@@ -16,6 +16,9 @@
 
   <!-- Namespace -->
   <xacro:arg name="namespace"                    default=""/>
+  <xacro:arg name="robot_model_name"                    default="create3"/>
+  <xacro:arg name="dock_model_name"                    default="standard_dock"/>
+
 
   <!-- Mechanical properties -->
   <xacro:property name="body_z_offset"           value="${-2.5*cm2m}" />
@@ -53,9 +56,7 @@
   <xacro:property name="base_link_z_offset"     value="${6.42*cm2m}"/>
 
   <!-- Docking properties -->
-  <xacro:property name="robot_model_name" value="$(arg namespace)/create3"/>
   <xacro:property name="receiver_link_name" value="ir_omni"/>
-  <xacro:property name="dock_model_name" value="$(arg namespace)/standard_dock"/>
   <xacro:property name="emitter_link_name" value="halo_link"/>
   <xacro:arg name="visualize_rays" default="false"/>
   <!-- Create 3 base definition-->
@@ -120,15 +121,15 @@
   <xacro:if value="${'$(arg gazebo)' == 'classic'}">
     <gazebo>
       <plugin name="gazebo_ros2_control" filename="libgazebo_ros2_control.so">
-        <parameters> $(find irobot_create_control)/config/control.yaml </parameters>
-         <ros>
-          <remapping>~/odom:=odom</remapping>
+      <parameters> $(find irobot_create_control)/config/control.yaml </parameters>
+      <ros>
+          <namespace>$(arg namespace)</namespace>
+          <remapping>/odom:=odom</remapping>
           <remapping>/tf:=tf</remapping>
           <remapping>/tf_static:=tf_static</remapping>
           <remapping>/diagnostics:=diagnostics</remapping>
-          <namespace>$(arg namespace)</namespace>
-        </ros>
-      </plugin>
+      </ros>
+    </plugin>
     </gazebo>
   </xacro:if>
 
@@ -137,11 +138,11 @@
       <plugin filename="ign_ros2_control-system" name="ign_ros2_control::IgnitionROS2ControlPlugin">
         <parameters> $(find irobot_create_control)/config/control.yaml </parameters>
          <ros>
-          <remapping>~/odom:=odom</remapping>
+          <namespace>$(arg namespace)</namespace>
+          <remapping>/odom:=odom</remapping>
           <remapping>/tf:=tf</remapping>
           <remapping>/tf_static:=tf_static</remapping>
           <remapping>/diagnostics:=diagnostics</remapping>
-          <namespace>$(arg namespace)</namespace>
         </ros>
       </plugin>
     </gazebo>
@@ -241,7 +242,7 @@
   <!-- Omni IR receiver (sensor 0) parameters and Front-facing IR receiver (sensor 1) parameters -->
   <xacro:property name="ir_omni_fov_rad" value="${220.0*deg2rad}"/>
   <xacro:property name="ir_front_facing_fov_rad" value="${pi/2}"/>
-  <xacro:ir_opcode_receivers gazebo="$(arg gazebo)" namespace="$(arg namespace)" robot_model_name="${robot_model_name}" dock_model_name="${dock_model_name}"
+  <xacro:ir_opcode_receivers gazebo="$(arg gazebo)" namespace="$(arg namespace)" robot_model_name="$(arg robot_model_name)" dock_model_name="$(arg dock_model_name)"
     emitter_link_name="${emitter_link_name}" sensor_0_range="0.01" sensor_0_fov="${ir_omni_fov_rad}"
     sensor_1_range="0.5" sensor_1_fov="${ir_front_facing_fov_rad}" >
     <origin xyz="0.153 0 ${0.035 + base_link_z_offset}"/>
@@ -273,9 +274,9 @@
           <remapping>~/out:=dock</remapping>
         </ros>
         <update_rate>1.0</update_rate>
-        <robot_model_name>${robot_model_name}</robot_model_name>
+        <robot_model_name>$(arg robot_model_name)</robot_model_name>
         <receiver_link_name>${receiver_link_name}</receiver_link_name>
-        <dock_model_name>${dock_model_name}</dock_model_name>
+        <dock_model_name>$(arg dock_model_name)</dock_model_name>
         <emitter_link_name>${emitter_link_name}</emitter_link_name>
       </plugin>
     </gazebo>
